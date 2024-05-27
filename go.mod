@@ -6,6 +6,7 @@ toolchain go1.22.3
 
 require (
 	github.com/go-logr/logr v1.4.1
+	github.com/kubernetes-csi/external-snapshotter/client/v4 v4.2.0
 	github.com/kubernetes-csi/external-snapshotter/client/v7 v7.0.0
 	github.com/onsi/ginkgo/v2 v2.17.3
 	github.com/onsi/gomega v1.33.1
