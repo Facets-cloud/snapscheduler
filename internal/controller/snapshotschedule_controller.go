@@ -81,7 +81,6 @@ func (r *SnapshotScheduleReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		// Error reading the object - requeue the request.
 		return ctrl.Result{}, err
 	}
-
 	result, err := doReconcile(ctx, instance, reqLogger, r.Client)
 
 	// Update result in CR
@@ -160,6 +159,7 @@ func doReconcile(ctx context.Context, schedule *snapschedulerv1.SnapshotSchedule
 	if durTillNext < requeueTime {
 		requeueTime = durTillNext
 	}
+	logger.Info("Requeuing for next snapshot", "durationTillNext", durTillNext, "requeueTime", requeueTime)
 	return ctrl.Result{RequeueAfter: requeueTime}, nil
 }
 
