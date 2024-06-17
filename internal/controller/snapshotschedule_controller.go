@@ -156,7 +156,8 @@ func doReconcile(ctx context.Context, schedule *snapschedulerv1.SnapshotSchedule
 	// Ensure we requeue in time for the next scheduled snapshot time
 	durTillNext := timeNext.Sub(timeNow)
 	requeueTime := maxRequeueTime
-	if durTillNext < requeueTime {
+	buffer := 1 * time.Minute // since we always reconcile every 5 minutes
+	if durTillNext < requeueTime + buffer {
 		requeueTime = durTillNext
 	}
 	logger.Info("Requeuing for next snapshot", "durationTillNext", durTillNext, "requeueTime", requeueTime)
