@@ -38,7 +38,6 @@ func (r *PvcReconciler) SetupWithManager(mgr ctrl.Manager) error {
 //
 //nolint:lll
 func (r *PvcReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-
 	reqLogger := log.FromContext(ctx).WithValues("pvcsnapshot-snapscheduler", req.NamespacedName)
 	reqLogger.Info("Reconciling PvcSnapshot-Snapscheduler")
 	pvcInstance := &corev1.PersistentVolumeClaim{}
@@ -71,17 +70,15 @@ func checkPvcToRestore(ctx context.Context, schedule *corev1.PersistentVolumeCla
 			return ctrl.Result{}, err
 		}
 		// Wait for PVC to be deleted
-		for {
-			err = c.Get(ctx, client.ObjectKeyFromObject(schedule), &corev1.PersistentVolumeClaim{})
-			if kerrors.IsNotFound(err) {
-				break
-			}
-			if err != nil {
-				logger.Error(err, "Failed to get PVC to check if the PVC is deleted", "PVC", schedule.Name)
+		// Remove finalizer to allow PVC deletion
+		if len(schedule.GetFinalizers()) > 0 {
+			schedule.SetFinalizers(nil)
+			if err := c.Update(ctx, schedule); err != nil {
+				logger.Error(err, "Failed to remove finalizers from PVC", "PVC", schedule.Name)
 				return ctrl.Result{}, err
 			}
-			time.Sleep(time.Second)
 		}
+		time.Sleep(time.Second)
 		// Recreate the PVC with datasource attached to it
 		newPvc := &corev1.PersistentVolumeClaim{
 			ObjectMeta: metav1.ObjectMeta{
