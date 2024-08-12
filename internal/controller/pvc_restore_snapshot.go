@@ -63,13 +63,6 @@ func checkPvcToRestore(ctx context.Context, schedule *corev1.PersistentVolumeCla
 		oldPvc := schedule.DeepCopy()
 		// Remove old pv name
 		oldPvc.Spec.VolumeName = ""
-		// Delete the existing PVC
-		err := c.Delete(ctx, schedule)
-		if err != nil {
-			logger.Error(err, "Failed to delete PVC", "PVC", schedule.Name)
-			return ctrl.Result{}, err
-		}
-		// Wait for PVC to be deleted
 		// Remove finalizer to allow PVC deletion
 		if len(schedule.GetFinalizers()) > 0 {
 			schedule.SetFinalizers(nil)
@@ -77,6 +70,12 @@ func checkPvcToRestore(ctx context.Context, schedule *corev1.PersistentVolumeCla
 				logger.Error(err, "Failed to remove finalizers from PVC", "PVC", schedule.Name)
 				return ctrl.Result{}, err
 			}
+		}
+		// Delete the existing PVC
+		err := c.Delete(ctx, schedule)
+		if err != nil {
+			logger.Error(err, "Failed to delete PVC", "PVC", schedule.Name)
+			return ctrl.Result{}, err
 		}
 		time.Sleep(time.Second)
 		// Recreate the PVC with datasource attached to it
