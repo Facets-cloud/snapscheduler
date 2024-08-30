@@ -83,6 +83,7 @@ func checkPvcToRestore(ctx context.Context, schedule *corev1.PersistentVolumeCla
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      oldPvc.Name,
 				Namespace: oldPvc.Namespace,
+				Labels: oldPvc.Labels,
 			},
 			Spec: oldPvc.Spec,
 		}
