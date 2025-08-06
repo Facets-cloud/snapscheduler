@@ -66,7 +66,3 @@ jobs:
           version=${{ steps.meta.outputs.version }}
           builddate=${{ steps.meta.outputs.created }}
           description=Operator to manage scheduled PV snapshots
-
-    - name: Output image digest
-      if: github.event_name != 'pull_request'
-      run: echo "Image digest: ${{ steps.build.outputs.digest }}"
