@@ -52,13 +52,17 @@ jobs:
           org.opencontainers.image.vendor=Backube
           org.opencontainers.image.source=https://github.com/backube/snapscheduler
 
+    - name: Generate short SHA
+      id: short_sha
+      run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
         context: .
         platforms: linux/amd64,linux/arm64
         push: ${{ github.event_name != 'pull_request' }}
-        tags: ${{ github.run_number }}-${{ github.sha | slice(0, 10) }}
+        tags: ${{ github.run_number }}-${{ steps.short_sha.outputs.sha_short }}
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
